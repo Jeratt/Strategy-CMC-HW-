@@ -51,8 +51,12 @@ public:
     Country(string name = "Untitled",unsigned int pop = 1000, unsigned int power = 50, unsigned int army = 50, unsigned int area = 500) :
         name(name), population(pop), power(power), army(army), area(area) {}
     virtual void elections() = 0;
-    virtual void attack(int country_id) = 0;
-    virtual void defense() = 0;
+    void attack(int country_id) {
+
+    };
+    void defense() {
+
+    };
 protected:
     string name;
     unsigned int population;
@@ -96,6 +100,10 @@ public:
 private:
     static unsigned int power;
 };
+
+
+
+unsigned int Barbarians::power = 10;
 
 int main()
 {
