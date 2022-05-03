@@ -10,6 +10,9 @@ public:
         return name;
     }
     virtual void year_upd() = 0;
+    virtual void show() {
+        cout << name << " at age of " << age << endl;
+    }
     virtual ~Leader() {}
 protected:
     string name;
@@ -25,7 +28,7 @@ private:
 
 class King_t : public Leader {
 public:
-    King_t(string k_name = "Unnamed", unsigned int k_age = 75, string inh = "Unnamed", unsigned int age = 18) :
+    King_t(string k_name = "Unnamed", string inh = "Unnamed", unsigned int k_age = 75, unsigned int age = 18) :
         Leader(k_name, k_age), inheritor(inh), inh_age(age) {
         // добавить обработку исключения на возраст наследника
     }
@@ -41,6 +44,11 @@ public:
             cin >> inh_age;
         }
     }
+    void show() {
+        cout << "King ";
+        this->Leader::show();
+        cout << "Inheritor: " << inheritor << " at age of " << inh_age << endl;
+    }
 private:
     string inheritor;
     unsigned int inh_age;
@@ -51,6 +59,13 @@ public:
     Country(string name = "Untitled",unsigned int pop = 1000, unsigned int power = 50, unsigned int army = 50, unsigned int area = 500) :
         name(name), population(pop), power(power), army(army), area(area) {}
     virtual void elections() = 0;
+    virtual void show() {
+        cout << name << ":" << endl;
+        cout << "Population: " << population << endl;
+        cout << "Power: " << power << endl;
+        cout << "Army: " << army << endl;
+        cout << "Area: " << area << endl;
+    }
     void attack(int country_id) {
 
     };
@@ -71,6 +86,9 @@ class Republic : public Country {
 
 class Kingdom : public Country {
 public:
+    Kingdom(string name,string king_name, string inh_name, unsigned int k_age = 75, unsigned int inh_age = 18) : Country(name) {
+        king = King_t(king_name, inh_name, k_age, inh_age);
+    }
     void elections() {
         string new_name, inheritor;
         int new_age, inh_age;
@@ -82,7 +100,12 @@ public:
         cin >> inheritor;
         cout << "His age is ";
         cin >> inh_age;
-        king = King_t(new_name, new_age, inheritor, inh_age);
+        king = King_t(new_name,inheritor,new_age,inh_age);
+    }
+    void show() {
+        cout << "Kingdom ";
+        this->Country::show();
+        king.show();
     }
 private:
     King_t king;
@@ -101,11 +124,48 @@ private:
     static unsigned int power;
 };
 
+void game() {
+    //REGISTRATION
+    int i = 0,number;
+    string country_type,name,king_name,inh_name;
+    cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
+    cin >> number;
+    Country** players;
+    players = new Country * [number];
+    while(i < number) {
+        try {
+            cin >> country_type;
+            if (country_type != "Kingdom" && country_type != "Republic" && country_type != "Community")
+                throw 'x';
+            else if (country_type == "Kingdom") {
+                cin >> name;
+                cout << "The king is: ";
+                cin >> king_name;
+                cout << "The inheritor is: ";
+                cin >> inh_name;
+                players[i] = new Kingdom(name, king_name, inh_name);
+            }
+        }
+        catch (char) {
+            cout << "WRONG COUNTRY TYPE! TRY AGAIN!" << endl;
+            continue;
+        }
+        players[i]->show();
+        ++i;
+    }
+    //THE GAME ITSELF
+    //DELETING
+    for (int i = 0; i < number; ++i) {
+        delete players[i];
+    }
+    delete[] players;
 
+}
 
 unsigned int Barbarians::power = 10;
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    game();
+    return 0;
 }
