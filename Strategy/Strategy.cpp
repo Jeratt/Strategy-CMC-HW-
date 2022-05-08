@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <cstdlib>
+#include "windows.h"
 
 using namespace std;
 
@@ -46,12 +47,10 @@ private:
 class King_t : public Leader {
 public:
     King_t(string k_name = "Unnamed", string inh = "Unnamed", unsigned int k_age = 75, unsigned int age = 18) :
-        Leader(k_name, k_age), inheritor(inh), inh_age(age) {
-        // добавить обработку исключения на возраст наследника
-    }
+        Leader(k_name, k_age), inheritor(inh), inh_age(age) {}
     void year_upd() {
         ++age;
-        if (age == 80) {
+        if (age >= 80) {
             cout << "The king " << name << " is dead!\nLong live the king " << inheritor << endl;
             name = inheritor;
             age = inh_age;
@@ -73,7 +72,7 @@ private:
 
 class Country {
 public:
-    Country(string name = "Untitled",unsigned int pop = 1000, unsigned int power = 50, unsigned int army = 50, unsigned int area = 500) :
+    Country(string name = "Untitled",unsigned int pop = 1000, unsigned int power = 100, unsigned int army = 20, unsigned int area = 500) :
         name(name), population(pop), power(power), army(army), area(area) {}
     virtual void year_upd() = 0;
     virtual void show() {
@@ -83,12 +82,29 @@ public:
         cout << "Army: " << army << endl;
         cout << "Area: " << area << endl;
     }
-    void attack(int country_id) {
-
+    void attack(Country * opp) {
+        population -= army;
+        area += opp->defense(power);
     };
-    void defense() {
-
+    int defense(unsigned int attack) {
+        population -= army;
+        if (attack > army) {
+            area -= attack - army;
+            return attack - army;
+        }
+        return 0;
     };
+    string get_name() {
+        return name;
+    }
+    bool in_game() {
+        if (population <= 0 || area <= 0)
+            return false;
+        return true;
+    }
+    void operator*(Country* opp) {
+        this->attack(opp);
+    }
     virtual ~Country() {}
 protected:
     string name;
@@ -171,8 +187,8 @@ private:
 
 class Barbarians {
 public:
-    static void attack(Country& point) {
-
+    static void attack(Country* point) {
+        point->defense(power);
     }
 private:
     static unsigned int power;
@@ -180,11 +196,13 @@ private:
 
 void game() {
     //REGISTRATION
-    int i = 0,number;
-    unsigned int to_elections, elders_amount;
-    string country_type,name,king_name,president_name,inh_name, *elders;
+    int i = 0, number, live_players;
+    unsigned int to_elections, elders_amount,barbarians_opp;
+    string country_type,name,king_name,president_name,inh_name, *elders,opp;
+    char action;
     cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
     cin >> number;
+    live_players = number;
     Country** players;
     players = new Country * [number];
     while(i < number) {
@@ -242,6 +260,75 @@ void game() {
         ++i;
     }
     //THE GAME ITSELF
+    i = 0;
+    while (true) {
+        system("cls"); //DIFFERENT ON LINUX
+        live_players = 0;
+        for (int j = 0; j < number; ++j) {
+            if (players[j]->in_game())
+                live_players++;
+        }
+        if (live_players == 1) {
+            cout << "GAME OVER!" << endl;
+            break;
+        }
+        else if (live_players == 0) {
+            cout << "BARBARIANS WON!" << endl;
+            break;
+        }
+        if (i != number) {
+            players[i]->show();
+            try {
+                cout << "TURN: ";
+                cin >> action >> opp;
+                if (action != '*')
+                    throw 'x';
+                for (int j = 0; j < number; ++j) {
+                    if (j == i)
+                        continue;
+                    if (players[j]->get_name() == opp) {
+                        if (players[j]->in_game()) {
+                            (*players[i])* players[j];
+                            break;
+                        }
+                        else {
+                            throw 1.5;
+                        }
+                    }
+                    if (j + 1 == number)
+                        throw 1;
+                }
+                players[i]->year_upd();
+            }
+            catch (char) {
+                cout << "WRONG ACTION! TRY AGAIN!" << endl;
+                continue;
+            }
+            catch (int) {
+                cout << "OPPONENT DOES NOT EXIST! TRY AGAIN!" << endl;
+                continue;
+            }
+            catch (double) {
+                cout << "OPPONENT HAS BEEN ELIMINATED! TRY AGAIN!" << endl;
+            }
+        }
+        else {
+            cout << "BARBARIANS!" << endl;
+            while (true) {
+                barbarians_opp = rand() % number;
+                if (players[barbarians_opp]->in_game()) {
+                    cout << "Barbarians attack country: " << players[barbarians_opp]->get_name() << endl;
+                    Barbarians::attack(players[barbarians_opp]);
+                    Sleep(1000);
+                    break;
+                }
+                else
+                    continue;
+            }
+        }
+        ++i;
+        i = i % (number + 1);
+    }
     //DELETING
     for (int i = 0; i < number; ++i) {
         delete players[i];
@@ -250,7 +337,7 @@ void game() {
 
 }
 
-unsigned int Barbarians::power = 10;
+unsigned int Barbarians::power = 100;
 
 int main()
 {
