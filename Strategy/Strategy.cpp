@@ -4,6 +4,8 @@
 
 using namespace std;
 
+//ДОБАВИТЬ ПЕРЕГРУЗКУ ВВОДА ВЫВОДА И ИНКРЕМЕНТ/ДЕКРЕМЕНТ
+
 class Leader {
 public:
     Leader(string name = "Unnamed", unsigned int age = 75) : name(name), age(age) {}
