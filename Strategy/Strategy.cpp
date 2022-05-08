@@ -89,6 +89,7 @@ public:
     void defense() {
 
     };
+    virtual ~Country() {}
 protected:
     string name;
     unsigned int population;
@@ -132,7 +133,40 @@ private:
 };
 
 class Community : public Country {
-
+public:
+    Community(string name, unsigned int elders_amount, string *elders, unsigned int to_elections) : Country(name),
+        to_elections(to_elections), term(to_elections), elders_amount(elders_amount)
+    {
+        this->elders = new string[elders_amount];
+        for (int i = 0; i < elders_amount; ++i) {
+            this->elders[i] = elders[i];
+        }
+    }
+    void year_upd() {
+        --to_elections;
+        if (to_elections <= 0) {
+            cout << "Elections in community " << name << "!\n";
+            cout << "New " << elders_amount << " elders are: ";
+            for (int k = 0; k < elders_amount; ++k) {
+                cin >> elders[k];
+            }
+        }
+        to_elections = term;
+    }
+    void show() {
+        cout << "\nCommunity ";
+        this->Country::show();
+        cout << "Elders are: ";
+        for (int k = 0; k < elders_amount; ++k) {
+            cout << elders[k] << endl;
+        }
+    }
+    ~Community() { delete[] elders; }
+private:
+    string* elders;
+    unsigned int elders_amount;
+    unsigned int to_elections;
+    const unsigned int term;
 };
 
 class Barbarians {
@@ -147,8 +181,8 @@ private:
 void game() {
     //REGISTRATION
     int i = 0,number;
-    unsigned int to_elections;
-    string country_type,name,king_name,president_name,inh_name;
+    unsigned int to_elections, elders_amount;
+    string country_type,name,king_name,president_name,inh_name, *elders;
     cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
     cin >> number;
     Country** players;
@@ -178,6 +212,22 @@ void game() {
                 if (to_elections <= 0)
                     throw 1;
                 players[i] = new Republic(name, president_name, to_elections);
+            }
+            else if (country_type == "Community") {
+                cout << "The community is: ";
+                cin >> name;
+                cout << "Elders amount: ";
+                cin >> elders_amount;
+                if (elders_amount <= 0)
+                    throw 1;
+                elders = new string[elders_amount];
+                for (int j = 0; j < elders_amount; ++j) {
+                    cin >> elders[j];
+                }
+                cout << "Elections every(years): ";
+                cin >> to_elections;
+                players[i] = new Community(name, elders_amount, elders, to_elections);
+                delete[] elders;
             }
         }
         catch (char) {
