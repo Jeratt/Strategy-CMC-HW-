@@ -21,9 +21,26 @@ protected:
 
 class President_t : public Leader {
 public:
-    President_t(unsigned int year_upd = 4) : to_elections(year_upd) {}
+    President_t(string name = "Unnamed",unsigned int year_upd = 4) : Leader(name), to_elections(year_upd), term(year_upd) {}
+    void year_upd() {
+        ++age;
+        --to_elections;
+        if (to_elections <= 0) {
+            cout << "Elections! Previous President is: " << name << endl;
+            cout << "The new President is: ";
+            cin >> name;
+            cout << "Next elections in: " << term << " years" <<  endl;
+            to_elections = term;
+        }
+    }
+    void show() {
+        cout << "President: ";
+        this->Leader::show();
+        cout << "Elections in " << to_elections << " years" << endl;
+    }
 private:
     unsigned int to_elections;
+    const unsigned int term;
 };
 
 class King_t : public Leader {
@@ -45,7 +62,7 @@ public:
         }
     }
     void show() {
-        cout << "King ";
+        cout << "King: ";
         this->Leader::show();
         cout << "Inheritor: " << inheritor << " at age of " << inh_age << endl;
     }
@@ -58,7 +75,7 @@ class Country {
 public:
     Country(string name = "Untitled",unsigned int pop = 1000, unsigned int power = 50, unsigned int army = 50, unsigned int area = 500) :
         name(name), population(pop), power(power), army(army), area(area) {}
-    virtual void elections() = 0;
+    virtual void year_upd() = 0;
     virtual void show() {
         cout << name << ":" << endl;
         cout << "Population: " << population << endl;
@@ -81,7 +98,20 @@ protected:
 };
 
 class Republic : public Country {
-
+public:
+    Republic(string name, string president_name, unsigned int to_elections) : Country(name),
+        to_elections(to_elections), president(president_name,to_elections) {}
+    void year_upd() {
+        president.year_upd();
+    }
+    void show() {
+        cout << "\nRepublic ";
+        this->Country::show();
+        president.show();
+    }
+private:
+    President_t president;
+    unsigned int to_elections;
 };
 
 class Kingdom : public Country {
@@ -89,21 +119,11 @@ public:
     Kingdom(string name,string king_name, string inh_name, unsigned int k_age = 75, unsigned int inh_age = 18) : Country(name) {
         king = King_t(king_name, inh_name, k_age, inh_age);
     }
-    void elections() {
-        string new_name, inheritor;
-        int new_age, inh_age;
-        cout << "The king " << king.get_name() <<" has murdered! A new king is: ";
-        cin >> new_name;
-        cout << "His age is ";
-        cin >> new_age;
-        cout << "New inheritor: ";
-        cin >> inheritor;
-        cout << "His age is ";
-        cin >> inh_age;
-        king = King_t(new_name,inheritor,new_age,inh_age);
+    void year_upd() {
+        king.year_upd();
     }
     void show() {
-        cout << "Kingdom ";
+        cout << "\nKingdom ";
         this->Country::show();
         king.show();
     }
@@ -127,17 +147,20 @@ private:
 void game() {
     //REGISTRATION
     int i = 0,number;
-    string country_type,name,king_name,inh_name;
+    unsigned int to_elections;
+    string country_type,name,king_name,president_name,inh_name;
     cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
     cin >> number;
     Country** players;
     players = new Country * [number];
     while(i < number) {
         try {
+            cout << "Country type: ";
             cin >> country_type;
             if (country_type != "Kingdom" && country_type != "Republic" && country_type != "Community")
                 throw 'x';
             else if (country_type == "Kingdom") {
+                cout << "The kingdom is: ";
                 cin >> name;
                 cout << "The king is: ";
                 cin >> king_name;
@@ -145,9 +168,24 @@ void game() {
                 cin >> inh_name;
                 players[i] = new Kingdom(name, king_name, inh_name);
             }
+            else if (country_type == "Republic") {
+                cout << "The republic is: ";
+                cin >> name;
+                cout << "The president is: ";
+                cin >> president_name;
+                cout << "Elections every(years): ";
+                cin >> to_elections;
+                if (to_elections <= 0)
+                    throw 1;
+                players[i] = new Republic(name, president_name, to_elections);
+            }
         }
         catch (char) {
             cout << "WRONG COUNTRY TYPE! TRY AGAIN!" << endl;
+            continue;
+        }
+        catch (int) {
+            cout << "WRONG PARAMETERS! TRY AGAIN!" << endl;
             continue;
         }
         players[i]->show();
