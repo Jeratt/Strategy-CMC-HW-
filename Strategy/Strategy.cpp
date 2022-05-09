@@ -4,7 +4,7 @@
 
 using namespace std;
 
-//ДОБАВИТЬ ПЕРЕГРУЗКУ ВВОДА ВЫВОДА И ИНКРЕМЕНТ/ДЕКРЕМЕНТ
+//ДОБАВИТЬ ПЕРЕГРУЗКУ ВВОДА ВЫВОДА, КОНСТРУКТОР КОПИРОВАНИЯ
 
 class Leader {
 public:
@@ -107,6 +107,14 @@ public:
     void operator*(Country* opp) {
         this->attack(opp);
     }
+    virtual Country & operator++() {
+        this->year_upd();
+        return *this;
+    }
+    virtual Country& operator++(int) {
+        this->year_upd();
+        return *this;
+    }
     virtual ~Country() {}
 protected:
     string name;
@@ -128,6 +136,14 @@ public:
         this->Country::show();
         president.show();
     }
+    virtual Republic& operator++() {
+        this->year_upd();
+        return *this;
+    }
+    virtual Republic& operator++(int) {
+        this->year_upd();
+        return *this;
+    }
 private:
     President_t president;
     unsigned int to_elections;
@@ -145,6 +161,14 @@ public:
         cout << "\nKingdom ";
         this->Country::show();
         king.show();
+    }
+    virtual Kingdom& operator++() {
+        this->year_upd();
+        return *this;
+    }
+    virtual Kingdom& operator++(int) {
+        this->year_upd();
+        return *this;
     }
 private:
     King_t king;
@@ -178,6 +202,14 @@ public:
         for (int k = 0; k < elders_amount; ++k) {
             cout << elders[k] << endl;
         }
+    }
+    virtual Community& operator++() {
+        this->year_upd();
+        return *this;
+    }
+    virtual Community& operator++(int) {
+        this->year_upd();
+        return *this;
     }
     ~Community() { delete[] elders; }
 private:
@@ -300,7 +332,7 @@ void game() {
                     if (j + 1 == number)
                         throw 1;
                 }
-                players[i]->year_upd();
+                ++(*players[i]);
             }
             catch (char) {
                 cout << "WRONG ACTION! TRY AGAIN!" << endl;
