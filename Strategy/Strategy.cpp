@@ -4,8 +4,6 @@
 
 using namespace std;
 
-//ДОБАВИТЬ ПЕРЕГРУЗКУ ВВОДА ВЫВОДА, КОНСТРУКТОР КОПИРОВАНИЯ
-
 class Leader {
 public:
     Leader(string name = "Unnamed", unsigned int age = 75) : name(name), age(age) {}
@@ -188,6 +186,19 @@ public:
             this->elders[i] = elders[i];
         }
     }
+    Community(const Community& x):term(x.term) {
+        name = x.name;
+        population = x.population;
+        power = x.power;
+        army = x.army;
+        area = x.area;
+        elders_amount = x.elders_amount;
+        to_elections = x.to_elections;
+        elders = new string[elders_amount];
+        for (int i = 0; i < elders_amount; ++i) {
+            elders[i] = x.elders[i];
+        }
+    }
     void year_upd() {
         --to_elections;
         if (to_elections <= 0) {
@@ -238,8 +249,18 @@ void game() {
     unsigned int to_elections, elders_amount,barbarians_opp;
     string country_type,name,king_name,president_name,inh_name, *elders,opp;
     char action;
-    cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
-    cin >> number;
+    while (true) {
+        cout << "Strategy simulator by Georgy Sazonov\nNumber of players: ";
+        try {
+            cin >> number;
+            if (number < 2)
+                throw 'x';
+            break;
+        }
+        catch (char) {
+            cout << "NOT ENOUGH PLAYERS!TRY AGAIN!" << endl;
+        }
+    }
     live_players = number;
     Country** players;
     players = new Country * [number];
