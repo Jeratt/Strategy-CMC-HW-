@@ -87,7 +87,7 @@ public:
     void attack(Country * opp) {
         population -= army;
         area += opp->defense(power);
-    };
+    }
     int defense(unsigned int attack) {
         population -= army;
         if (attack > army) {
@@ -95,7 +95,7 @@ public:
             return attack - army;
         }
         return 0;
-    };
+    }
     string get_name() {
         return name;
     }
@@ -114,6 +114,10 @@ public:
     virtual Country& operator++(int) {
         this->year_upd();
         return *this;
+    }
+    friend ostream& operator<<(ostream& c, Country& a) {
+        a.show();
+        return c;
     }
     virtual ~Country() {}
 protected:
@@ -290,7 +294,7 @@ void game() {
             cout << "WRONG PARAMETERS! TRY AGAIN!" << endl;
             continue;
         }
-        players[i]->show();
+        cout<<(*players[i]);
         ++i;
     }
     //THE GAME ITSELF
@@ -311,7 +315,7 @@ void game() {
             break;
         }
         if (i != number) {
-            players[i]->show();
+            cout<<(*players[i]);
             try {
                 cout << "TURN: ";
                 cin >> action >> opp;
