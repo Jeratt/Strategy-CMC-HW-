@@ -338,6 +338,11 @@ void game() {
         if (i != number) {
             cout<<(*players[i]);
             try {
+                if (!(players[i]->in_game())) {
+                    ++i;
+                    i = i % (number + 1);
+                    continue;
+                }
                 cout << "TURN: ";
                 cin >> action >> opp;
                 if (action != '*')
